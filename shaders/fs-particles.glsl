@@ -44,8 +44,11 @@ void main(){
   float l = abs( sin( t *4. ) );
 
   vec2 uv = vec2( gl_PointCoord.x , 1.0 - gl_PointCoord.y); 
-//  vec4 a2 = texture2D( t_audio , vec2( abs( (uv.x - .5 )+(uv.y-.5)) , 0.) );
 
+  float lookup = (uv.x - .5 )*(uv.x - .5 ) + (uv.y-.5)*(uv.y-.5);
+ vec4 a2 = texture2D( t_audio , vec2( lookup, 0.) );
+
+ if( lookup> .25 ){discard;}
 
   vec3 c = particlesOut;
 
@@ -55,9 +58,9 @@ void main(){
 
   }
 
-  vec4 s = texture2D( t_sprite , uv );
+  //vec4 s = texture2D( t_sprite , uv );
 
-  gl_FragColor = s * vec4(vAudio.xyz,1. ) *vec4( c , 1.);// + vec4( 0. ,0.,0.,1.);
+  gl_FragColor = a2 * a2 * a2 * vAudio*vAudio* vec4( c , .1);// + vec4( 0. ,0.,0.,1.);
  // gl_FragColor = vec4( vUv.x , 0. , vUv.y, 1.);
  // gl_FragColor = vec4( fNorm * .5  + .5, 1.);
   //gl_FragColor = vec4( vec3(vFacing * vFacing * vFacing , 1. );

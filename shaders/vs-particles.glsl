@@ -58,7 +58,7 @@ void main(){
   }
 
   
-  gl_PointSize = min( 20. , (100. * length( vAudio) * length( vAudio) * length( vAudio))  /  length( (modelViewMatrix * vec4( vPos , 1. )).xyz));
+  gl_PointSize = min( 20. , (400. * length( vAudio) * length( vAudio) * length( vAudio))  /  length( (modelViewMatrix * vec4( vPos , 1. )).xyz));
   
 
   gl_Position = projectionMatrix * modelViewMatrix * vec4( vPos , 1. );
