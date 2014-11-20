@@ -21,7 +21,6 @@
   <meta property="og:site_name" content="Cabbi.bo">
   <meta property="og:description" content="Long Live Synesthesia">
 
-
   <style>
 
     @font-face {
@@ -57,9 +56,14 @@ box-shadow: inset 0px 0px 33px 0px rgba(0,0,0,0.83);
     a{
       color: #fff;
       text-decoration: none;
+      opacity:.6;
       //position: absolute;
      // z-index: 999;
-    }
+   }
+
+   a:hover{
+    opacity:1;
+   }
 
     #loading{
 
@@ -146,11 +150,49 @@ text-decoration: underline;
     #nextColor:hover{
       opacity:1
     }
+
+    #loadBar{
+
+      position:absolute;
+      top:100px;
+      left:0px;
+      height: 2px;
+      opacity: .7;
+      width: 10px;
+      background:#fff;
+      display:block;
+      z-index:999;
+    }
+
+
+    #failure{
+
+      position:absolute;
+      left: 50%;
+      top:50%;
+      z-index:999;
+      //border:1px solid white;
+      font-size:30px;
+      
+      -webkit-transform: translate(-50%, -50%);
+      transform: translate(-50%, -50%);
+
+
+      text-align:center;
+        
+    }
+
   </style>
 </head>
 <body>
 
+  <div id="loadBar"></div>
 
+  <div id="failure">
+    To view this Experiment,<br/>
+    You will need the following:<br/><br/>
+
+  </div>
 
   <div id="share">
 
@@ -178,14 +220,32 @@ text-decoration: underline;
 <script src = "lib/GUI.js"                    ></script>
 <script src = "lib/SubdivisionModifier.js"    ></script>
 <script src = "lib/addSocialMedia.js"         ></script>
+<script src = "lib/Detector.js"               ></script>
 
 
 <script src = "CubeObj.js"                ></script>
 
 <script>
 
-  console.log('Loading');
+  var check = new Detector([
+    "webGL",
+    "mobile",
+    "audio"
+  ],function(F){
 
+    var d = document.getElementById('failure');
+
+    for( var i = 0; i < F.length; i++ ){
+
+      var a = document.createElement('a' );
+      a.href=F[i][1];
+      a.innerHTML = F[i][0]+"<br/>";
+      d.appendChild( a );
+
+
+    }
+
+  });
   var container , camera, scene, renderer , stats;
 
   var sceneSize = 5000;
@@ -354,7 +414,11 @@ audioController.mute.gain.value = 0;
   var controller = new Leap.Controller();
   controller.connect();
 
-
+ 
+  var loadBar = document.getElementById( 'loadBar' );
+  console.log( 'LAIOD');
+  console.log( loadBar );
+  
 
   var loader  = new THREE.OBJLoader();
   loader.load( 'models/hand.obj' , function( obj ){
@@ -365,8 +429,11 @@ audioController.mute.gain.value = 0;
     console.log('geo done');
     onLoad();
 
+
   },function( a ){
 
+  var percent = (a.loaded / a.total);
+  loadBar.style.width = percent * window.innerWidth + "px"
   console.log('ROAS');
   console.log( a ); 
   
@@ -660,6 +727,10 @@ audioController.mute.gain.value = 0;
      camera.up.set( 0,1,1);
 
      stream.play();
+
+
+         loadBar.style.display = "none";
+
   }
 
 
