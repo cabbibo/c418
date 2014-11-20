@@ -9,6 +9,7 @@ varying vec3 vMPos;
 varying vec3 vEye;
 varying float vID;
 varying vec3 vCenterPos;
+varying vec4 vAudio;
 
 varying vec2 vUv;
 varying float fb;
@@ -38,9 +39,10 @@ void main(){
   float m = dot( normalize( eye )  ,normal );//dot( normalize(eye) , mNorm );
   vec4 a =  texture2D( t_audio , vec2( vID / numOfCubes , 0. ) );
 
+  vAudio = a;
   vFacing = m;
 
-  vPos = position.xyz + norm*pow(length( a) /2. , 4.);
+  vPos = position.xyz - norm * .1 - norm*length(a);//pow(length( a) /2. , 4.);
 
   vMPos = (modelMatrix * vec4( vPos ,1. )).xyz;
 

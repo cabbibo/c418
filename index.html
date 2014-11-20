@@ -28,15 +28,23 @@
       font-family: "GeoSans";
       src: url("lib/GeosansLight.ttf");
     }
-    html{ color:#fff; background:#26150F; font-family:"GeoSans" }
+    html{ color:#fff; background:#000000; font-family:"GeoSans" }
 
     #container{
-      width      : 100%;
-      height     : 100%;
+      //width      : 100%;
+      //height     : 100%;
       position   : absolute;
-      top        : 0px;
+      top        : 100px;
       left       : 0px;
       background : #000;
+    }
+
+    #renderer{
+
+      -webkit-box-shadow: inset 0px 0px 33px 0px rgba(0,0,0,0.83);
+-moz-box-shadow: inset 0px 0px 33px 0px rgba(0,0,0,0.83);
+box-shadow: inset 0px 0px 33px 0px rgba(0,0,0,0.83);
+
     }
 
     #stats{
@@ -48,6 +56,7 @@
 
     a{
       color: #fff;
+      text-decoration: none;
       //position: absolute;
      // z-index: 999;
     }
@@ -81,16 +90,23 @@
       //position: absolute;
       position: fixed;
       z-index: 99;
-      font-size: 25px;
+      font-size: 55px;
 
-      bottom: 0px;
+      top: 100px;
      /* left:70px;
       font-size: 25px;
       padding: 10px;*/
        left: 50%;
-    -webkit-transform: translate(-50%, -30%);
-    transform: translate(-50%, -30%);
-    }
+    -webkit-transform: translate(-50%, -120%);
+    transform: translate(-50%, -120%);
+    text-decoration:none;
+    opacity:.6
+
+  }
+  #share:hover{
+    opacity:1
+  }
+
 
 
     #tweet{
@@ -138,11 +154,11 @@ text-decoration: underline;
 
   <div id="share">
 
-    <a id="nextColor" onclick="nextScheme()">Change Colors</a><br/> 
-    <a href="https://soundcloud.com/lukeabbottmusic/luke-abbott-modern-driveway" target="_blank"> Modern Driveway - Luke Abbott </a><br/>
+    <!--<a id="nextColor" onclick="nextScheme()">Change Colors</a><br/>-->
+    <a href="http://c418.bandcamp.com/album/one" target="_blank"> C418 - ONE </a><br/>
 
   </div>
-    <a id="tweet" href="http://twitter.com/share?text=%23threejs%20%23webgl%20space%20speaker%20powered%20by%20@lukeabbottmusic%20(%20code:%20@cabbibo%20):%20&url=http://cabbi.bo/drive" target="_blank"><img src="tweet.png"/><br/>
+    <a id="tweet" href="http://twitter.com/share?text=%23threejs%20visualizer%20made%20for%20the%20coolest%20dude%20on%20the%20planet:%20@C418%20(%20code:%20@cabbibo%20):%20&url=http://cabbi.bo/c418" target="_blank"><img src="tweet.png"/><br/>
 
   <div id="GUI"></div>
 <script src = "lib/underscore.js"             ></script>
@@ -176,15 +192,15 @@ text-decoration: underline;
 
   var andersGeo;
   var loaded = 0;
-  var neededToLoad = 1;
+  var neededToLoad = 2;
 
   var clock = new THREE.Clock();
 
   var audioController = new AudioController();
 
- audioController.mute.gain.value = 0;
+audioController.mute.gain.value = 0;
 
- var userAudio = new UserAudio( audioController );
+/* var userAudio = new UserAudio( audioController );
  userAudio.onStreamCreated = function(){
 
    onLoad();
@@ -192,26 +208,29 @@ text-decoration: underline;
    console.log('HEKLKS');
 
  }
+*/
 
-
+ var stream = new Stream( 'one.mp3', audioController  );
  
   var mossNormal = THREE.ImageUtils.loadTexture( 'img/normals/moss_normal_map.jpg' )  
   mossNormal.wrapS = THREE.RepeatWrapping; 
   mossNormal.wrapT = THREE.RepeatWrapping; 
 
+  var sprite = THREE.ImageUtils.loadTexture( 'img/cabbibo.png' )  
 
  var G = {
 
    resolution: { type:"v2" , value: new THREE.Vector2( window.innerWidth , window.innerHeight ) },
    t_audio : { type:"t" , value: audioController.texture },
    t_normal: { type:"t" , value: mossNormal},
+   t_sprite: { type:"t" , value: sprite},
 
    
     time:{ type:"f" , value:0 },
     dT:{ type:"f" , value:0 },
     lightPos:{type:"v3",value: new THREE.Vector3( 200 , 0 , 0 ) },
 
-    numOfCubes:{type:"f" , value: 300 },
+    numOfCubes:{type:"f" , value: 3000 },
         
     tmp_cubeOut:   { type:"color"  , value:                  0xF2B66D },
     cubeOut:       { type:"c"      , value: new THREE.Color( 0xF2B66D )},  
@@ -225,17 +244,11 @@ text-decoration: underline;
     tmp_handIn:   { type:"color"  , value:                  0x7ec7a0 },
     handIn:       { type:"c"      , value: new THREE.Color( 0x7ec7a0 )}, 
 
-    tmp_skullOut: { type:"color"  , value:                  0xBF533B },
-    skullOut:     { type:"c"      , value: new THREE.Color( 0xBF533B )},  
+    tmp_particlesOut: { type:"color"  , value:                  0xBF533B },
+    particlesOut:     { type:"c"      , value: new THREE.Color( 0xBF533B )},  
 
-    tmp_skullIn:  { type:"color"  , value:                  0xA84934 },
-    skullIn:      { type:"c"      , value: new THREE.Color( 0xA84934 )}, 
-
-    tmp_tetraIn:  { type:"color"  , value:                  0xc8b59a },
-    tetraIn:      { type:"c"      , value: new THREE.Color( 0xc8b59a )},  
-
-    tmp_tetraOut: { type:"color"  , value:                  0xc09380 },
-    tetraOut:     { type:"c"      , value: new THREE.Color( 0xc09380 )}, 
+    tmp_particlesIn:  { type:"color"  , value:                  0xA84934 },
+    particlesIn:      { type:"c"      , value: new THREE.Color( 0xA84934 )}, 
 
     tmp_bg: { type:"color"  , value:                  0x281000 },
     bg:     { type:"c"      , value: new THREE.Color( 0x281000 )},  
@@ -257,23 +270,17 @@ text-decoration: underline;
      G.tmp_handIn.value = array[3];
      G.handIn.value.setHex( array[3] );
 
-     G.tmp_skullOut.value = array[4];
-     G.skullOut.value.setHex( array[4] );
+     G.tmp_particlesOut.value = array[4];
+     G.particlesOut.value.setHex( array[4] );
 
-     G.tmp_skullIn.value = array[5];
-     G.skullIn.value.setHex( array[5] );
+     G.tmp_particlesIn.value = array[5];
+     G.particlesIn.value.setHex( array[5] );
 
-     G.tmp_tetraIn.value = array[6];
-     G.tetraIn.value.setHex( array[6] );
-
-     G.tmp_tetraOut.value = array[7];
-     G.tetraOut.value.setHex( array[7] );
-
-     G.tmp_bg.value = array[8];
-     G.bg.value.setHex( array[8] );
+     G.tmp_bg.value = array[6];
+     G.bg.value.setHex( array[6] );
 
      if( renderer ){
-       renderer.setClearColor( array[8] , 1 );
+       renderer.setClearColor( array[6] , 1 );
      }
 
 
@@ -282,7 +289,6 @@ text-decoration: underline;
 
    }
 
-   var currentScheme = 0;
    function nextScheme(){
 
      currentScheme ++;
@@ -298,117 +304,59 @@ text-decoration: underline;
 
 
 
-  colorSchemes = [
-    [
-     0xF2B66D ,
-     0xB0844F ,
-     0x059372 ,
-     0x7ec7a0 ,
-     0xBF533B ,
-     0xA84934 ,
-     0x8fdcfc ,
-     0x0381c5 ,
+   colorSchemes = [
+[ 
+0xFA9600,
+0xFABD4A,
+0xF73E47,
+0x47FADB,
+0xffffff,
+0xffffff,
+0x000000,
+],
+
+[
+   0xFF845B,
+   0x5affff,
+   0xff5ad8,
+   0x5b7bff,
+   0x5BFFB0,
+   0xffffff,
+   0x000000
+  ],
+  [
+    0x96CEB4,
+    0xFFEEAD,
+    0xFF6F69,
+    0xFFCC5C,
+    0xAAD8B0,
+    0xFF6F69,
+    0x000000
+  ],
+
+  [
+  
+    0xEFC94C,
+    0x334D5C,
+    0x45B29D,
+    0xEFC94C,
+    0xE27A3F,
+    0xDF5A49,
      0x000000
-    ],
-       [
-      0xf0c45b,
-      0x594239,
-      0xF27457,
-      0xf0c45b,
-      0x77A6A6,
-      0x594239,
-      0x594239,
-      0xF25244,
-      0x26150F
-
-    ],
-    [
-      0xFF6138,
-      0xFFFF9D,
-      0xBEEB9F,
-      0x9cf2b8,
-      0x00A388,
-      0xFF6138,
-      0xFFFF9D,
-      0xBEEB9F,
-      0x79BD8F,
-      0x00A388
-    ],
-    [
-      0x105B63,
-      0xFFFAD5,
-      0xFFD34E,
-      0xffe6bb,
-      0xBD4932,
-      0x105B63,
-      0xFFFAD5,
-      0xFFD34E,
-      0xDB9E36,
-      0xBD4932
-      ],
-
-    [
-      0x2E0927,
-      0xD90000,
-      0x04756F,
-      0xFF2D00,
-      0xFF8C00,
-      0x04756F,
-      0xFF8C00,
-      0xD90000,
-      0x2E0927,
-     
-      ],
-    [
-    0x334D5C,
-    0x45B29D,
-    0xEFC94C,
-    0xE27A3F,
-    0xDF5A49,
-    0x334D5C,
-    0x45B29D,
-    0xEFC94C,
-    0xE27A3F,
-    0xDF5A49,
-
     ]
-  ]
 
+]
+
+   var currentScheme = colorSchemes.length-1;
 
   nextScheme();
 
   var controller = new Leap.Controller();
   controller.connect();
 
-  /*<iframe width="100%" height="450" scrolling="no" frameborder="no" src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/131626452&amp;auto_play=false&amp;hide_related=false&amp;show_comments=true&amp;show_user=true&amp;show_reposts=false&amp;visual=true"></iframe>*/
-
-  /* <iframe width="100%" height="450" scrolling="no" frameborder="no" src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/137231351&amp;auto_play=false&amp;hide_related=false&amp;show_comments=true&amp;show_user=true&amp;show_reposts=false&amp;visual=true"></iframe>
-  
-  <iframe width="100%" height="450" scrolling="no" frameborder="no" src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/175757777&amp;auto_play=false&amp;hide_related=false&amp;show_comments=true&amp;show_user=true&amp;show_reposts=false&amp;visual=true"></iframe>
-  
-  <iframe width="100%" height="450" scrolling="no" frameborder="no" src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/167068862&amp;auto_play=false&amp;hide_related=false&amp;show_comments=true&amp;show_user=true&amp;show_reposts=false&amp;visual=true"></iframe>
-
-  <iframe width="100%" height="450" scrolling="no" frameborder="no" src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/45179757&amp;auto_play=false&amp;hide_related=false&amp;show_comments=true&amp;show_user=true&amp;show_reposts=false&amp;visual=true"></iframe>
-  
-  
-  */
-
-    var audio = new Audio(),
-  // `stream_url` you'd get from 
-  // requesting http://api.soundcloud.com/tracks/6981096.json
-  url = 'http://api.soundcloud.com/tracks/45179757/stream' +
-        '?client_id=2400df97862fa2c06f486af524e4f974';
-
-  audio.src = url;
-
-  var source = audioController.ctx.createMediaElementSource(audio);
-  source.connect(audioController.gain);
-
-  console.log( source );
-  
 
 
-  /*var loader  = new THREE.OBJLoader();
+  var loader  = new THREE.OBJLoader();
   loader.load( 'models/hand.obj' , function( obj ){
 
     handGeo = obj.children[0].geometry;
@@ -417,7 +365,16 @@ text-decoration: underline;
     console.log('geo done');
     onLoad();
 
-  });*/
+  },function( a ){
+
+  console.log('ROAS');
+  console.log( a ); 
+  
+  },function(){
+
+    alert( 'ERROR LOADING HAND' );
+    
+  });
 
  
 
@@ -438,6 +395,9 @@ text-decoration: underline;
 
   shaders.load( 'fs-cube' , 'cube' , 'fragment' );
   shaders.load( 'vs-cube' , 'cube' , 'vertex' );
+
+  shaders.load( 'fs-particles' , 'particles' , 'fragment' );
+  shaders.load( 'vs-particles' , 'particles' , 'vertex' );
 
   shaders.shaderSetLoaded = function(){
    onLoad();
@@ -468,14 +428,15 @@ text-decoration: underline;
     });
     renderer.setClearColor( G.tmp_bg.value, 1 );
 
-    renderer.setSize( window.innerWidth, window.innerHeight );
+    renderer.setSize( window.innerWidth, window.innerHeight -200);
     container.appendChild( renderer.domElement );
 
+   renderer.domElement.id="renderer"
     scene = new THREE.Scene();
     
     camera = new THREE.PerspectiveCamera( 
       70 ,
-      window.innerWidth / window.innerHeight,
+      window.innerWidth / (window.innerHeight-200),
       1 / 10 ,
       4000
     );
@@ -489,12 +450,12 @@ text-decoration: underline;
 
     fallback = new THREE.TrackballControls( camera , renderer.domElement );
     fallback.maxDistance = 2000; 
-    fallback.minDistance = 10; 
+    fallback.minDistance = 50; 
     controls = new THREE.LeapTrackballControls( camera , controller , fallback );
 
     controls.zoom = 1000;
     controls.maxZoom = 2000;
-    controls.minZoom = 500;
+    controls.minZoom = 50;
     controls.zoomDampening = .95;
     controls.zoomMultiplier = 10;
     controls.rotationSpeed = 3;
@@ -526,14 +487,14 @@ text-decoration: underline;
   // var modifier = new THREE.SubdivisionModifier( 3 );
     //  modifier.modify( geo );
 
-   /* hand = new THREE.Mesh(
+    hand = new THREE.Mesh(
       handGeo,
       handMat 
     );
 
-    hand.scale.multiplyScalar( 100 );
+    hand.scale.multiplyScalar( 200 );
 
-    mover.add( hand );*/
+    mover.add( hand );
 
     
   
@@ -551,13 +512,83 @@ text-decoration: underline;
       vertexShader: shaders.vs.cube,
       fragmentShader: shaders.fs.cube,
       side: THREE.DoubleSide,
-      transparent: true
+      //transparent: true
     });
 
-    var cube = new THREE.Mesh( cubeGeo , cubeMat );
+  var cubes = new THREE.Object3D();
 
-   cube.scale.multiplyScalar( 100 );
-   mover.add( cube );
+  for( var i =0; i < 4; i++ ){
+
+
+    var cube = new THREE.Mesh( cubeGeo , cubeMat );
+    cube.rotation.y = (i / 4 ) * 2 * Math.PI;
+    cubes.add( cube );
+
+     var cube = new THREE.Mesh( cubeGeo , cubeMat );
+     cube.rotation.y = (i / 4 ) * 2 * Math.PI;
+     cube.rotation.z = Math.PI;
+     cubes.add( cube );
+
+     /*   var cube = new THREE.Mesh( cubeGeo , cubeMat );
+     cube.rotation.y = (i / 4 ) * 2 * Math.PI;
+     cube.rotation.z = Math.PI;
+     cube.rotation.x = Math.PI;*/
+
+     /*  var cube = new THREE.Mesh( cubeGeo , cubeMat );
+     cube.rotation.y = (i / 4 ) * 2 * Math.PI;
+     cube.rotation.z = Math.PI;*/
+    /// cube.rotation.x = Math.PI;
+    cubes.add( cube );
+
+  
+  }
+  cubes.scale.multiplyScalar( 2 );
+
+  mover.add( cubes );
+
+  var particles = new THREE.Object3D();
+
+  var particleMat = new THREE.ShaderMaterial({
+    uniforms:G,
+    attributes:{
+      centerPosition:{type:"v3",value:null},
+      id:{type:"float",value:null},
+    },
+    vertexShader: shaders.vs.particles,
+    fragmentShader: shaders.fs.particles,
+    transparent: true,
+    //blending: THREE.AdditiveBlending,
+    depthWrite:false
+  });
+  for( var i =0; i < 4; i++ ){
+
+
+    var particle = new THREE.PointCloud( cubeGeo , particleMat );
+    particle.rotation.y = (i / 4 ) * 2 * Math.PI;
+    particles.add( particle );
+
+    var particle = new THREE.PointCloud( cubeGeo , particleMat );
+    particle.rotation.y = (i / 4 ) * 2 * Math.PI;
+    particle.rotation.x = Math.PI;
+    particles.add( particle );
+
+     
+
+    particles.add( particle );
+
+  
+  }
+ 
+  particles.scale.multiplyScalar( 40 );
+  particles.rotation.z = Math.PI;
+
+  mover.add( particles );
+
+
+
+
+
+
 
   /* var cubeGeo = new CubeObj();
 
@@ -624,9 +655,11 @@ text-decoration: underline;
       448.95662259266834, 
       -325.71949426983144
     );
-     camera.position.set( -1046, 401, -221.);
+     camera.position.set( 0, 0, 51.);
 
-    camera.up.set( 0,1,1);
+     camera.up.set( 0,1,1);
+
+     stream.play();
   }
 
 
@@ -688,11 +721,11 @@ text-decoration: underline;
   // Resets the renderer to be the proper size
   function onWindowResize(){
 
-    G.resolution.value.set( window.innerWidth , window.innerHeight );
-    camera.aspect = window.innerWidth / window.innerHeight;
+    G.resolution.value.set( window.innerWidth , (window.innerHeight-200) );
+    camera.aspect = window.innerWidth / (window.innerHeight-200);
     camera.updateProjectionMatrix();
 
-    renderer.setSize( window.innerWidth, window.innerHeight );
+    renderer.setSize( window.innerWidth, (window.innerHeight-200) );
 
   }
 

@@ -46,7 +46,15 @@ function CubeObj( numOf ){
     [0 , 0 , -1 ],
   ]
 
-  this.getCubes([0,0,0]);
+
+  this.arraySize = 100;
+  this.cubeArray = new Float32Array( this.arraySize * this.arraySize * this.arraySize );
+
+  this.getCubes([
+    this.arraySize/2,
+    this.arraySize/2,
+    this.arraySize/2
+  ]);
 
   var geo = this.createGeometry();
   console.log(this.cubes );
@@ -57,13 +65,61 @@ function CubeObj( numOf ){
 
 CubeObj.prototype.getCubes = function( cP ){
 
+
   if( this.cubes.length < this.numOf ){
+    var free = []
+   
+      for( var i = 0; i < 6; i++ ){
+
+      var p = [ 
+        cP[0] + this.dir[i][0],
+        cP[1] + this.dir[i][1],
+        cP[2] + this.dir[i][2]
+      ]
+
+      var as = this.arraySize;
+      if(
+        p[0] < 0 || p[0] > as ||
+        p[1] < 0 || p[1] > as ||
+        p[2] < 0 || p[2] > as 
+      ){}else{
+
+       // console.log('HEAL');
+        var id = p[0] + p[1] * as + p[2] * as * as;
+
+      //  console.log( this.cubeArray[id] );
+        if( this.cubeArray[ id ] == 0 ){
+         // console.log('asss');
+          free.push( p );
+        }
+
+      }
+
+    }
+
+    if( free.length > 0 ){
+
+       
+      d = free[ Math.floor(Math.random() * free.length) ];
+
+     // var nP = [ cP[0] + d[0] , cP[1] + d[1] , cP[2] + d[2] ];
+
+      this.cubes.push( d );
+      this.getCubes( d );
 
 
-    var d = (Math.random() < .5) ? this.dir[5] : this.dir[4];
+    }else{
+
+      console.log('DONEZO');
+     // this.getCubes( 
+
+    }
+
+
+   /* var d = (Math.random() < .5) ? this.dir[5] : this.dir[4];
 
     //d = (Math.random() < .3) ? d : this.dir[3];
-    if( Math.random() > .01 ){
+    if( Math.random() > Math.pow((1-(this.cubes.length / this.numOf)),100) ){
       d = this.dir[ Math.floor(Math.random() * 6) ];
     }
     var nP = [ cP[0] + d[0] , cP[1] + d[1] , cP[2] + d[2] ];
@@ -92,7 +148,7 @@ CubeObj.prototype.getCubes = function( cP ){
 
       this.getCubes( cP );
 
-    }
+    }*/
 
   }
 
@@ -173,6 +229,10 @@ CubeObj.prototype.assignCube = function( index , c , p , n , uv , id ){
   var vertIndex = 6 * 6 * index;
   var vI = vertIndex;
   var cubePos = this.cubes[index];
+
+  cubePos[0]-=this.arraySize/2;
+  cubePos[1]-=this.arraySize/2;
+  cubePos[2]-=this.arraySize/2;
 
   for( var i = 0; i < 6; i++ ){
 

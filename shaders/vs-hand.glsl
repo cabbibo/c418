@@ -36,7 +36,7 @@ void main(){
 
   vNorm = normal;
 
-  vNormMat = normalMatrix;
+  //vNormMat = normalMatrix;
   vMNorm = normalize(normalMatrix * normal);
 
   fb = 0.;
